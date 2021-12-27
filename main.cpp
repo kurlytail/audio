@@ -2,11 +2,12 @@
 
 #include <memory>
 
-#include <CoreMIDI/MIDIServices.h>
+#include <cstdlib>
 #include <gflags/gflags.h>
 #include <glog/logging.h>
-#include <include/yaml.h>
 #include <portaudio.h>
+#include <rtmidi/RtMidi.h>
+#include <yaml-cpp/yaml.h>
 
 struct SoundDevice {
     const PaDeviceInfo *info;
@@ -32,7 +33,7 @@ int main(int argc, char *argv[])
     google::InitGoogleLogging(argv[0]);
     gflags::ParseCommandLineFlags(&argc, &argv, true);
 
-    auto node = YAML::Load("[1, 2, 3]");
+    YAML::Node node = YAML::Load("[1, 2, 3]");
     assert(node.Type() == YAML::NodeType::Sequence);
     assert(node.IsSequence()); // a shortcut!
 
@@ -84,27 +85,57 @@ int main(int argc, char *argv[])
     LOG(INFO) << "Using input device " << inputDevice;
     LOG(INFO) << "Using output device " << outputDevice;
 
-    int midiDeviceCount = MIDIGetNumberOfDevices();
-    LOG(INFO) << "Found " << midiDeviceCount << " MIDI devices";
-    for (auto midiDevice = 0; midiDevice < midiDeviceCount; ++midiDevice) {
-        CFStringRef pname, pmanuf, pmodel;
-        char name[64], manuf[64], model[64];
-
-        MIDIDeviceRef dev = MIDIGetDevice(midiDevice);
-
-        MIDIObjectGetStringProperty(dev, kMIDIPropertyName, &pname);
-        MIDIObjectGetStringProperty(dev, kMIDIPropertyManufacturer, &pmanuf);
-        MIDIObjectGetStringProperty(dev, kMIDIPropertyModel, &pmodel);
-
-        CFStringGetCString(pname, name, sizeof(name), 0);
-        CFStringGetCString(pmanuf, manuf, sizeof(manuf), 0);
-        CFStringGetCString(pmodel, model, sizeof(model), 0);
-        CFRelease(pname);
-        CFRelease(pmanuf);
-        CFRelease(pmodel);
-
-        LOG(INFO) << "MIDI device " << name << " - " << manuf << " - " << model;
+    RtMidiIn *midiin = 0;
+    RtMidiOut *midiout = 0;
+    // RtMidiIn constructor
+    try {
+        midiin = new RtMidiIn();
     }
+    catch (RtMidiError &error) {
+        error.printMessage();
+        exit(EXIT_FAILURE);
+    }
+    // Check inputs.
+    unsigned int nPorts = midiin->getPortCount();
+    std::cout << "\nThere are " << nPorts << " MIDI input sources available.\n";
+    std::string portName;
+    for (unsigned int i = 0; i < nPorts; i++) {
+        try {
+            portName = midiin->getPortName(i);
+        }
+        catch (RtMidiError &error) {
+            error.printMessage();
+            goto cleanup;
+        }
+        std::cout << "  Input Port #" << i + 1 << ": " << portName << '\n';
+    }
+    // RtMidiOut constructor
+    try {
+        midiout = new RtMidiOut();
+    }
+    catch (RtMidiError &error) {
+        error.printMessage();
+        exit(EXIT_FAILURE);
+    }
+    // Check outputs.
+    nPorts = midiout->getPortCount();
+    std::cout << "\nThere are " << nPorts << " MIDI output ports available.\n";
+    for (unsigned int i = 0; i < nPorts; i++) {
+        try {
+            portName = midiout->getPortName(i);
+        }
+        catch (RtMidiError &error) {
+            error.printMessage();
+            goto cleanup;
+        }
+        std::cout << "  Output Port #" << i + 1 << ": " << portName << '\n';
+    }
+    std::cout << '\n';
+    // Clean up
+
+cleanup:
+    delete midiin;
+    delete midiout;
 
     err = Pa_Terminate();
     if (err != paNoError) {

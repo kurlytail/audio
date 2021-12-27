@@ -7,7 +7,6 @@ ExternalProject_Add(
 
 add_library(rtmidi INTERFACE)
 add_dependencies(rtmidi rtmidi-ext)
-target_link_directories(rtmidi INTERFACE
-    ${CMAKE_CURRENT_BINARY_DIR}/lib)
-target_include_directories(rtmidi INTERFACE
-    ${CMAKE_CURRENT_BINARY_DIR}/include)
+target_link_directories(rtmidi INTERFACE ${CMAKE_CURRENT_BINARY_DIR}/lib)
+target_include_directories(rtmidi INTERFACE ${CMAKE_CURRENT_BINARY_DIR}/include)
+target_link_libraries(rtmidi INTERFACE -lrtmidi)
