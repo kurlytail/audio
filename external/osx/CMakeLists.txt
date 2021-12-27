@@ -1,0 +1,18 @@
+
+find_library(COREAUDIO_LIBRARY CoreAudio REQUIRED)
+find_library(AUDIOTOOLBOX_LIBRARY AudioToolbox REQUIRED)
+find_library(AUDIOUNIT_LIBRARY AudioUnit REQUIRED)
+find_library(COREFOUNDATION_LIBRARY CoreFoundation REQUIRED)
+find_library(CORESERVICES_LIBRARY CoreServices REQUIRED)
+find_library(COREMIDI_LIBRARY CoreMIDI REQUIRED)
+
+add_library(osx INTERFACE)
+
+target_link_libraries(osx INTERFACE 
+    "${COREAUDIO_LIBRARY}"
+    "${AUDIOTOOLBOX_LIBRARY}"
+    "${AUDIOUNIT_LIBRARY}"
+    "${COREFOUNDATION_LIBRARY}"
+    "${CORESERVICES_LIBRARY}"
+    "${COREMIDI_LIBRARY}"
+)
