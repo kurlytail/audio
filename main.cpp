@@ -97,7 +97,7 @@ int main(int argc, char *argv[])
     }
     // Check inputs.
     unsigned int nPorts = midiin->getPortCount();
-    std::cout << "\nThere are " << nPorts << " MIDI input sources available.\n";
+    LOG(INFO) << "There are " << nPorts << " MIDI input sources available";
     std::string portName;
     for (unsigned int i = 0; i < nPorts; i++) {
         try {
@@ -107,7 +107,7 @@ int main(int argc, char *argv[])
             error.printMessage();
             goto cleanup;
         }
-        std::cout << "  Input Port #" << i + 1 << ": " << portName << '\n';
+        LOG(INFO) << "  Input Port #" << i + 1 << ": " << portName;
     }
     // RtMidiOut constructor
     try {
@@ -119,7 +119,7 @@ int main(int argc, char *argv[])
     }
     // Check outputs.
     nPorts = midiout->getPortCount();
-    std::cout << "\nThere are " << nPorts << " MIDI output ports available.\n";
+    LOG(INFO) << "There are " << nPorts << " MIDI output ports available.";
     for (unsigned int i = 0; i < nPorts; i++) {
         try {
             portName = midiout->getPortName(i);
@@ -128,10 +128,8 @@ int main(int argc, char *argv[])
             error.printMessage();
             goto cleanup;
         }
-        std::cout << "  Output Port #" << i + 1 << ": " << portName << '\n';
+        LOG(INFO) << "  Output Port #" << i + 1 << ": " << portName;
     }
-    std::cout << '\n';
-    // Clean up
 
 cleanup:
     delete midiin;

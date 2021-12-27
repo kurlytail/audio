@@ -7,6 +7,7 @@ add_subdirectory(external)
 add_executable(device main.cpp)
 
 target_link_libraries(device PRIVATE
+    osx
     wxWidgets
     glog
     folly
