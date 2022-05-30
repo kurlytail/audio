@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 add_subdirectory(external)
 add_subdirectory(units)
-add_executable(device main.cpp)
+add_executable(device main.cpp device.cpp)
 
 target_link_libraries(device PRIVATE
     osx
